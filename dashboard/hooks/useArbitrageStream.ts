@@ -16,7 +16,13 @@ export function useArbitrageStream(url: string) {
   const connect = useCallback(() => {
     if (typeof window === 'undefined') return
 
-    const ws = new WebSocket(url)
+    let ws: WebSocket
+    try {
+      ws = new WebSocket(url)
+    } catch {
+      timerRef.current = setTimeout(connect, RECONNECT_MS)
+      return
+    }
     wsRef.current = ws
 
     ws.onopen = () => setConnected(true)
